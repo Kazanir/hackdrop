@@ -1,0 +1,7 @@
+type: module
+name: Dripdrop Async
+description: 'Tooling to provide async I/O for Drupal using Hack.'
+package: Dripdrop
+core: 8.x
+hhvm: 3.6
+
