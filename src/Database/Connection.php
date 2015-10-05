@@ -74,8 +74,43 @@ class Connection extends MysqlConnection {
    * Whether this sort of sorcery should actually be employed by mere mortals is
    * left as an exercise for the reader.
    */
-  public static function queryfTransform(string $query, array<mixed> $args): (string, Vector<mixed>) {
+  public static function queryfTransform(string $query, array<string, mixed> $args): (string, Set<mixed>) {
+    // We need to replace our PDO-style parameter list mapping :foo to $bar with
+    // a queryf-style string and parameter list.
+    $working_args = [];
+    $final_query = $query;
+    foreach ($args as $placeholder => $param) {
+      switch (TRUE) {
+        case (is_int($param)):
+          $format = '%d';
+          break;
+        case (is_float($param)):
+          $format = '%f';
+          break;
+        default:
+          $format = '%s';
+          break;
+      }
+      // Find the placeholder string in the working query string and replace it
+      // with the format code.
+      $final_query = str_replace($placeholder, $format, $final_query);
 
+      // Locate all instances of the original placeholder in the query. This
+      // gives us the order we need to send back the argument list in. Make sure
+      // we get all instances of a placeholder in case it is being used twice.
+      $pos = 0;
+      while (($pos = strpos($query, $placeholder, $pos)) !== FALSE) {
+        $working_args[$pos] = $param;
+      }
+    }
+
+    // Now we need to sort our args array by the keys and strip it down to an
+    // ordered Set.
+    ksort($working_args);
+    $final_args = Set { };
+    $final_args->fromItems($working_args);
+
+    return tuple($final_query, $final_args);
   }
 
 }
