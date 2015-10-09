@@ -1,6 +1,6 @@
 <?hh // partial
 
-namespace Drupal\hh_async\Database;
+namespace Drupal\hackutils\Database;
 
 use Drupal\Core\Database\Driver\mysql\Connection as MysqlConnection;
 use Drupal\Core\Database;
@@ -63,7 +63,7 @@ class Connection extends MysqlConnection {
 
       return $result;
     }
-    catch {
+    catch (\Exception $e) {
       // @todo: Figure out how to catch async exceptions here...
     }
   }

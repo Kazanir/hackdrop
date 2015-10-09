@@ -1,6 +1,0 @@
-<?php
-
-function hh_async_entity_type_alter(&$types) {
-  $types['node']->setHandlerClass('storage', 'Drupal\hh_async\Entity\Storage\AsyncNodeStorage');
-}
-

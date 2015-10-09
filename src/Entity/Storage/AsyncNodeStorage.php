@@ -1,8 +1,8 @@
 <?hh
 
-namespace Drupal\hh_async\Entity\Storage;
+namespace Drupal\hackutils\Entity\Storage;
 
-use Drupal\hh_async\Entity\Sql\MysqlAsyncContentEntityStorageLoader;
+use Drupal\hackutils\Entity\Sql\MysqlAsyncContentEntityStorageLoader;
 use Drupal\node\NodeStorage;
 use Drupal\node\NodeStorageInterface;
 

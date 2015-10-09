@@ -1,0 +1,6 @@
+<?php
+
+function hackutils_entity_type_alter(&$types) {
+  $types['node']->setHandlerClass('storage', 'Drupal\hackutils\Entity\Storage\AsyncNodeStorage');
+}
+

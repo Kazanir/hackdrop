@@ -1,12 +1,12 @@
 {
-  "name": "drupal/hh_async",
+  "name": "drupal/hackutils",
   "type": "project",
   "require": {
     "hhvm/asio-utilities": "~2.2"
   },
   "autoload": {
     "psr-4": {
-      "Drupal\\hh_async\\Database\\": "modules/contrib/hh_async/src/Database"
+      "Drupal\\hackutils\\Database\\": "src/Database"
     }
   }
 }

@@ -1,6 +1,6 @@
 <?hh // partial
 
-namespace Drupal\hh_async\Entity\Sql;
+namespace Drupal\hackutils\Entity\Sql;
 
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
