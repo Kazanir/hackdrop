@@ -48,7 +48,10 @@ trait MysqlAsyncContentEntityStorageLoader {
     $langcodes = array_keys($this->languageManager->getLanguages(LanguageInterface::STATE_ALL));
 
     $completion_map = await mmk($storage_definitions, async (string $field_name, FieldStorageDefinitionInterface $storage) ==> {
+      \drupal_set_message("Logging pre-query time for $field_name at " . microtime());
       $query_result = await $this->asyncLoadFromDedicatedTable($storage, $ids, $langcodes, $load_from_revision);
+      \drupal_set_message("Logging post-query time for $field_name at " . microtime());
+
       $results = $query_result->mapRowsTyped();
       foreach ($results as $row) {
         $etid = $row['entity_id'];
@@ -85,7 +88,7 @@ trait MysqlAsyncContentEntityStorageLoader {
           }
         }
       }
-
+      \drupal_set_message("Logging post-mapping time for $field_name at " . microtime());
     });
   }
 
