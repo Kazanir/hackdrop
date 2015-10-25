@@ -1,6 +1,9 @@
-<?php
+<?hh // partial
 
 function hackutils_entity_type_alter(&$types) {
   $types['node']->setHandlerClass('storage', 'Drupal\hackutils\Entity\Storage\AsyncNodeStorage');
 }
 
+async function hackutils_async_twig_render_template(string $template_file, array<mixed> $variables): string {
+
+}
