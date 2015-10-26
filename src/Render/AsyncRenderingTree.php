@@ -3,6 +3,14 @@
 namespace Drupal\hackutils\Render;
 
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Theme\ThemeManagerInterface;
+use function HH\Asio\vm;
 
 trait AsyncRenderingTree {
   require implements RendererInterface;
@@ -11,17 +19,17 @@ trait AsyncRenderingTree {
    * Wrap the async version of the rendering function. Functions which recurse
    * to render() can call and await the async version directly.
    */
-  public function render(array<mixed> &$elements, bool $is_root_call = FALSE): string {
+  public function render(&$elements, $is_root_call = FALSE): string {
     return $this->asyncRender($elements, $is_root_call)->join();
   }
 
-  public function renderPlain(array<mixed> &$elements): string {
+  public function renderPlain(&$elements): string {
     return $this->asyncExecuteInRenderContext(new RenderContext(), async function(): Awaitable<string> {
       return await $this->asyncRender($elements, TRUE);
     })->join();
   }
 
-  public function renderRoot(array<mixed> &$elements): string {
+  public function renderRoot(&$elements): string {
     // Disallow calling ::renderRoot() from within another ::renderRoot() call.
     if ($this->isRenderingRoot) {
       $this->isRenderingRoot = FALSE;
@@ -107,7 +115,7 @@ trait AsyncRenderingTree {
     if (isset($elements['#cache']['keys'])) {
       // @TODO Hackutils: Implement async version of the render cache which
       // await-vectors the multiple cache gets happening here.
-      $cached_element = await $this->renderCache->asyncGet($elements);
+      $cached_element = $this->renderCache->get($elements);
       if ($cached_element !== FALSE) {
         $elements = $cached_element;
         // Only when we're in a root (non-recursive) Renderer::render() call,
@@ -408,13 +416,6 @@ trait AsyncRenderingTree {
 
     $elements['#printed'] = TRUE;
     return $elements['#markup'];
-  }
-
-  /**
-   * This function becomes async.
-   */
-  protected async function renderPlaceholder(string $placeholder, array<mixed> $elements): array<mixed> {
-
   }
 
 }
