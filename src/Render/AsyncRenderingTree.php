@@ -6,6 +6,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Render\RenderContext;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\Cache;
@@ -19,17 +20,15 @@ trait AsyncRenderingTree {
    * Wrap the async version of the rendering function. Functions which recurse
    * to render() can call and await the async version directly.
    */
-  public function render(&$elements, $is_root_call = FALSE): string {
+  public function render(&$elements, $is_root_call = FALSE): mixed {
     return $this->asyncRender($elements, $is_root_call)->join();
   }
 
-  public function renderPlain(&$elements): string {
-    return $this->asyncExecuteInRenderContext(new RenderContext(), async function(): Awaitable<string> {
-      return await $this->asyncRender($elements, TRUE);
-    })->join();
+  public function renderPlain(&$elements): mixed {
+    return $this->asyncExecuteInRenderContext(new RenderContext(), $elements)->join();
   }
 
-  public function renderRoot(&$elements): string {
+  public function renderRoot(&$elements): mixed {
     // Disallow calling ::renderRoot() from within another ::renderRoot() call.
     if ($this->isRenderingRoot) {
       $this->isRenderingRoot = FALSE;
@@ -38,15 +37,31 @@ trait AsyncRenderingTree {
 
     // Render in its own render context.
     $this->isRenderingRoot = TRUE;
-    $output = $this->asyncExecuteInRenderContext(new RenderContext(), async function(): Awaitable<string> {
-      return await $this->asyncRender($elements, TRUE);
-    })->join();
+    $output = $this->asyncExecuteInRenderContext(new RenderContext(), $elements)->join();
     $this->isRenderingRoot = FALSE;
 
     return $output;
   }
 
-  protected async function asyncRender(array<mixed> &$elements, bool $is_root_call = FALSE): Awaitable<string> {
+  public async function asyncExecuteInRenderContext(RenderContext $context, &$elements): Awaitable<mixed> {
+    // Store the current render context.
+    $previous_context = $this->getCurrentRenderContext();
+
+    // Set the provided context and call the callable, it will use that context.
+    $this->setCurrentRenderContext($context);
+    $result = await $this->asyncRender($elements, TRUE);
+    // @todo Convert to an assertion in https://www.drupal.org/node/2408013
+    if ($context->count() > 1) {
+      throw new \LogicException('Bubbling failed.');
+    }
+
+    // Restore the original render context.
+    $this->setCurrentRenderContext($previous_context);
+
+    return $result;
+  }
+
+  protected async function asyncRender(array<mixed> &$elements, bool $is_root_call = FALSE): Awaitable<mixed> {
     try {
       return await $this->asyncDoRender($elements, $is_root_call);
     }
@@ -57,7 +72,7 @@ trait AsyncRenderingTree {
     }
   }
 
-  protected async function asyncDoRender(array<mixed> &$elements, bool $is_root_call = FALSE): Awaitable<string> {
+  protected async function asyncDoRender(array<mixed> &$elements, bool $is_root_call = FALSE): Awaitable<mixed> {
     if (empty($elements)) {
       return '';
     }
