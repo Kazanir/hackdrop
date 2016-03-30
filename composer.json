@@ -1,6 +1,8 @@
 {
   "name": "drupal/hackutils",
+  "description": "Tooling to make use of various Hack language features in Drupal.",
   "type": "drupal-module",
+  "homepage": "https://github.com/Kazanir/hackutils",
   "require": {
     "hhvm/asio-utilities": "~2.2"
   },
@@ -9,4 +11,6 @@
       "Drupal\\hackutils\\Database\\": "src/Database"
     }
   }
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev"
 }
