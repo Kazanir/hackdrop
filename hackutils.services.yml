@@ -1,21 +1,21 @@
 services:
-  twig:
-    class: Drupal\hackutils\Template\TwigEnvironment
-    arguments: ['@app.root', '@cache.default', '%twig_extension_hash%', '@twig.loader', '%twig.config%']
-    tags:
-      - { name: service_collector, tag: 'twig.extension', call: addExtension }
-  twig.extension.hackutils:
-    # Need to ADD mine here, not replace??
-    class: Drupal\hackutils\Template\TwigExtension
-    arguments: ['@renderer']
-    tags:
-      - { name: twig.extension }
+  #   twig:
+  #     class: Drupal\hackutils\Template\TwigEnvironment
+  #     arguments: ['@app.root', '@cache.default', '%twig_extension_hash%', '@twig.loader', '%twig.config%']
+  #     tags:
+  #       - { name: service_collector, tag: 'twig.extension', call: addExtension }
+#   twig.extension.hackutils:
+#     # Need to ADD mine here, not replace??
+#     class: Drupal\hackutils\Template\TwigExtension
+#     arguments: ['@renderer']
+#     tags:
+#       - { name: twig.extension }
   renderer:
     class: Drupal\hackutils\Render\AsyncRenderer
     arguments: ['@controller_resolver', '@theme.manager', '@plugin.manager.element_info', '@render_placeholder_generator', '@render_cache', '@request_stack', '%renderer.config%']
-  theme.manager:
-    class: Drupal\hackutils\Theme\AsyncThemeManager
-    arguments: ['@app.root', '@theme.negotiator', '@theme.initialization', '@request_stack', '@module_handler']
-    calls:
-      - [setThemeRegistry, ['@theme.registry']]
+  #   theme.manager:
+  #     class: Drupal\hackutils\Theme\AsyncThemeManager
+  #     arguments: ['@app.root', '@theme.negotiator', '@theme.initialization', '@request_stack', '@module_handler']
+  #     calls:
+  #       - [setThemeRegistry, ['@theme.registry']]
 

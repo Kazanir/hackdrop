@@ -1,6 +1,6 @@
 {
   "name": "drupal/hackutils",
-  "type": "project",
+  "type": "drupal-module",
   "require": {
     "hhvm/asio-utilities": "~2.2"
   },
